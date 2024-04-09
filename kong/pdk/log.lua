@@ -202,13 +202,13 @@ local serializers = {
 -- Produced log lines have the following format when logging is invoked from
 -- within the core:
 --
--- ``` plain
+-- ``` plaintext
 -- [kong] %file_src:%line_src %message
 -- ```
 --
 -- In comparison, log lines produced by plugins have the following format:
 --
--- ``` plain
+-- ``` plaintext
 -- [kong] %file_src:%line_src [%namespace] %message
 -- ```
 --
@@ -227,14 +227,14 @@ local serializers = {
 --
 -- would, within the core, produce a log line similar to:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [notice] 25932#0: *1 [kong] some_file.lua:54 hello world, client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
 -- If invoked from within a plugin (for example, `key-auth`) it would include the
 -- namespace prefix:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [notice] 25932#0: *1 [kong] some_file.lua:54 [key-auth] hello world, client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
@@ -267,14 +267,14 @@ local serializers = {
 --
 -- would, within the core, produce a log line similar to:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [error] 25932#0: *1 [kong] some_file.lua:54 hello world, client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
 -- If invoked from within a plugin (for example, `key-auth`) it would include the
 -- namespace prefix:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [error] 25932#0: *1 [kong] some_file.lua:54 [key-auth] hello world, client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
@@ -416,14 +416,14 @@ end
 --
 -- would, within the core, produce a log line similar to:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [warn] 25932#0: *1 [kong] some_file.lua:54 hello world, client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
 -- If invoked from within a plugin (for example, `key-auth`) it would include the
 -- namespace prefix:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [warn] 25932#0: *1 [kong] some_file.lua:54 [key-auth] hello world, client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
@@ -435,7 +435,7 @@ end
 --
 -- would, within the core, produce a log line similar to:
 --
--- ``` plain
+-- ``` plaintext
 -- 2017/07/09 19:36:25 [warn] 25932#0: *1 [kong] some_file.lua:54 hello world (deprecated after 2.5.0, scheduled for removal in 3.0.0), client: 127.0.0.1, server: localhost, request: "GET /log HTTP/1.1", host: "localhost"
 -- ```
 --
@@ -482,7 +482,7 @@ end
 -- When writing logs, `kong.log.inspect()` always uses its own format, defined
 -- as:
 --
--- ``` plain
+-- ``` plaintext
 -- %file_src:%func_name:%line_src %message
 -- ```
 --
