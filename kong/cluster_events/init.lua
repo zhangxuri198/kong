@@ -360,7 +360,7 @@ poll_handler = function(premature, self)
     return poll(self)
   end)
 
-  if not ok and err ~= "exists" then
+  if not ok and err ~= "timeout" then
     log(ERR, err)
   end
 

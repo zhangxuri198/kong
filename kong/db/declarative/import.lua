@@ -582,7 +582,8 @@ do
     end)
 
     if not ok then
-      if err == "timeout" and ttl then
+      if err == "timeout" then
+        ttl = ttl or DECLARATIVE_RETRY_TTL_MAX
         local retry_after = min(ttl, DECLARATIVE_RETRY_TTL_MAX)
         return nil, "busy", retry_after
       end
