@@ -301,8 +301,8 @@ kong_rules_group(
         ":kong",
         ":venv.sh",
         ":venv.fish",
-        ":direnv",
         ":venv-commons",
+        ":direnv",
     ],
     visibility = ["//visibility:public"],
 )
