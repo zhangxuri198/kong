@@ -1,26 +1,19 @@
-Subject: [PATCH] 增加error日志脱敏
----
-Index: src/http/ngx_http_request.c
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
-===================================================================
-diff --git a/src/http/ngx_http_request.c b/src/http/ngx_http_request.c
---- a/src/http/ngx_http_request.c	(revision eb62c7f629a4da2c83b44fd819a6eb45c5658700)
-+++ b/src/http/ngx_http_request.c	(revision 4e620f1096be579366273a32cded97c7921bbe94)
+diff --git a/bundle/nginx-1.25.3/src/http/ngx_http_request.c b/bundle/nginx-1.25.3src/http/ngx_http_request.c
+--- a/bundle/nginx-1.25.3/src/http/ngx_http_request.c
++++ b/bundle/nginx-1.25.3src/http/ngx_http_request.c
 @@ -3870,6 +3870,9 @@
      ngx_http_upstream_t       *u;
      ngx_http_core_srv_conf_t  *cscf;
- 
+
 +    ngx_str_t                 base64;
 +    ngx_str_t                 filter;
 +
      cscf = ngx_http_get_module_srv_conf(r, ngx_http_core_module);
- 
+
      p = ngx_snprintf(buf, len, ", server: %V", &cscf->server_name);
 @@ -3888,13 +3891,80 @@
      }
- 
+
      if (r->request_line.len) {
 -        p = ngx_snprintf(buf, len, ", request: \"%V\"", &r->request_line);
 +        base64.len = ngx_base64_encoded_length(r->request_line.len);
@@ -60,7 +53,7 @@ diff --git a/src/http/ngx_http_request.c b/src/http/ngx_http_request.c
          len -= p - buf;
          buf = p;
      }
- 
+
      if (r != sr) {
 -        p = ngx_snprintf(buf, len, ", subrequest: \"%V\"", &sr->uri);
 +        base64.len = ngx_base64_encoded_length(sr->uri.len);
@@ -138,7 +131,7 @@ diff --git a/src/http/ngx_http_request.c b/src/http/ngx_http_request.c
 +        if (base64.data != NULL) {
 +            ngx_pfree(r->pool, base64.data);
 +        }
- 
+
 -        p = ngx_snprintf(buf, len, ", upstream: \"%V%V%s%V\"",
 -                         &u->schema, u->peer.name,
 -                         uri_separator, &u->uri);
