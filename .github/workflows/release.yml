@@ -332,8 +332,8 @@ jobs:
         echo "arch=$arch"
         echo "arch=$arch" >> $GITHUB_OUTPUT
 
-    - name: Release
-      uses: softprops/action-gh-release@v2
+    - name: Release deb
+      uses: softprops/action-gh-release@v2.0.8
       with:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
