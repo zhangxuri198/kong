@@ -335,8 +335,5 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        name: release_test
-        files: |
-          bazel-bin/pkg/${{ matrix.artifact }}
-          LICENSE
+        files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
