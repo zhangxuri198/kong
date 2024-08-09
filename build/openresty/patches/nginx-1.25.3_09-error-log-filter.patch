@@ -1,6 +1,6 @@
-diff --git a/bundle/nginx-1.25.3/src/http/ngx_http_request.c b/bundle/nginx-1.25.3src/http/ngx_http_request.c
+diff --git a/bundle/nginx-1.25.3/src/http/ngx_http_request.c b/bundle/nginx-1.25.3/src/http/ngx_http_request.c
 --- a/bundle/nginx-1.25.3/src/http/ngx_http_request.c
-+++ b/bundle/nginx-1.25.3src/http/ngx_http_request.c
++++ b/bundle/nginx-1.25.3/src/http/ngx_http_request.c
 @@ -3870,6 +3870,9 @@
      ngx_http_upstream_t       *u;
      ngx_http_core_srv_conf_t  *cscf;
