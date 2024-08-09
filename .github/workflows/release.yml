@@ -333,8 +333,8 @@ jobs:
         echo "arch=$arch" >> $GITHUB_OUTPUT
 
     - name: Upload to release
-      uses: JasonEtco/upload-to-release@master
+      uses: zhangxuri198/upload-to-release@master
       with:
-        args: bazel-bin/pkg/${{ matrix.artifact }}
+        args: bazel-bin/pkg/${{ matrix.artifact }} application/vnd.debian.binary-package
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
