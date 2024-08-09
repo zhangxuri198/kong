@@ -6,17 +6,6 @@ name: Package & Release
 # Do not bump the version of actions/checkout to v4 before dropping rhel7 and amazonlinux2.
 
 on:  # yamllint disable-line rule:truthy
-  pull_request:
-    paths-ignore:
-    - '**/*.md'
-    - '.github/workflows/build_and_test.yml'
-    - 'changelog/**'
-    - 'kong.conf.default'
-  schedule:
-  - cron:  '0 0 * * *'
-  push:
-    branches:
-    - master
   workflow_dispatch:
     inputs:
       official:
@@ -343,33 +332,9 @@ jobs:
         echo "arch=$arch"
         echo "arch=$arch" >> $GITHUB_OUTPUT
 
-    - name: Upload Packages
+    - name: Upload to release
+      uses: JasonEtco/upload-to-release@master
+      with:
+        args: bazel-bin/pkg/${{ matrix.artifact }}
       env:
-        ARCHITECTURE: ${{ steps.pkg-arch.outputs.arch }}
-        OFFICIAL_RELEASE: ${{ github.event.inputs.official }}
-        ARTIFACT_VERSION: ${{ matrix.artifact-version }}
-        ARTIFACT_TYPE: ${{ matrix.artifact-type }}
-        ARTIFACT: ${{ matrix.artifact }}
-        INPUT_VERSION: ${{ github.event.inputs.version }}
-        PACKAGE_TYPE: ${{ matrix.package }}
-        KONG_RELEASE_LABEL: ${{ needs.metadata.outputs.release-label }}
-        VERBOSE: ${{ runner.debug == '1' && '1' || '' }}
-        CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
-        CLOUDSMITH_DRY_RUN: ''
-        IGNORE_CLOUDSMITH_FAILURES: ${{ vars.IGNORE_CLOUDSMITH_FAILURES }}
-        USE_CLOUDSMITH: ${{ vars.USE_CLOUDSMITH }}
-      run: |
-        sha256sum bazel-bin/pkg/*
-
-        # set the version input as tags passed to release-scripts
-        # note: release-scripts rejects user tags if missing internal flag
-        #
-        # this can be a comma-sepratated list of tags to apply
-        if [[ "$OFFICIAL_RELEASE" == 'false' ]]; then
-          if echo "$INPUT_VERSION" | grep -qs -E 'rc|alpha|beta|nightly'; then
-            PACKAGE_TAGS="$INPUT_VERSION"
-            export PACKAGE_TAGS
-          fi
-        fi
-
-        scripts/release-kong.sh
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -45,12 +45,12 @@ scan-vulnerabilities:
 
 release-packages:
 # Ubuntu
-- label: ubuntu-20.04
-  package: deb
-  artifact-from: ubuntu-20.04
-  artifact-version: 20.04
-  artifact-type: ubuntu
-  artifact: kong.amd64.deb
+# - label: ubuntu-20.04
+#   package: deb
+#   artifact-from: ubuntu-20.04
+#   artifact-version: 20.04
+#   artifact-type: ubuntu
+#   artifact: kong.amd64.deb
 - label: ubuntu-22.04
   package: deb
   artifact-from: ubuntu-22.04
