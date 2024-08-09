@@ -332,9 +332,12 @@ jobs:
         echo "arch=$arch"
         echo "arch=$arch" >> $GITHUB_OUTPUT
 
-    - name: Upload to release
-      uses: zhangxuri198/upload-to-release@master
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
       with:
-        args: bazel-bin/pkg/${{ matrix.artifact }} application/vnd.debian.binary-package
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: release_test
+        files: |
+          bazel-bin/pkg/${{ matrix.artifact }}
+          LICENSE
+        token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
