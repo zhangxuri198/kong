@@ -37,12 +37,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get Start Time
-        run: echo "START_TIME=$(date -u -d '8 hour' '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        run: echo "START_TIME=$(date -u -d '8 hour' '+%Y-%m-%d_%H:%M:%S')" >> $GITHUB_ENV
 
       - name: Print Start Time
         run: echo "Action started at ${{ env.START_TIME }}"
 
   metadata:
+    needs: get-time
     name: Metadata
     runs-on: ubuntu-22.04
     outputs:
