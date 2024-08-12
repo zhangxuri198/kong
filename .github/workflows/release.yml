@@ -349,4 +349,4 @@ jobs:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ env.TAG_NAME }}
-        name: ${{ github.ref_name }}_${{ env.TAG_NAME }}
+        name: ${{ github.ref_name }}
