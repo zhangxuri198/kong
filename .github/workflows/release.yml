@@ -33,6 +33,15 @@ env:
 
 
 jobs:
+  get-time:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Start Time
+        run: echo "START_TIME=$(date -u -d '8 hour' '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+
+      - name: Print Start Time
+        run: echo "Action started at ${{ env.START_TIME }}"
+
   metadata:
     name: Metadata
     runs-on: ubuntu-22.04
@@ -340,4 +349,4 @@ jobs:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: 3.7.1
-        name: ${{ github.ref_name }}_${{ github.GITHUB_RUN_ATTEMPT }}
+        name: ${{ github.ref_name }}_${{ env.START_TIME }}
