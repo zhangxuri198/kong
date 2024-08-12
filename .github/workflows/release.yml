@@ -353,5 +353,5 @@ jobs:
       with:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: 3.7.1
+        tag_name: ${{ github.ref_name }}
         name: ${{ github.ref_name }}_${{ needs.set-time.outputs.start_time }}
