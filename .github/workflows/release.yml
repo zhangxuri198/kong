@@ -32,22 +32,7 @@ env:
   HAS_ACCESS_TO_GITHUB_TOKEN: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
 
 jobs:
-  set-time:
-    runs-on: ubuntu-22.04
-    outputs:
-      start_time: ${{ steps.set-time.outputs.START_TIME }}
-    steps:
-      - name: Get Start Time in UTC+8
-        id: set-time
-        run: echo "START_TIME=$(date -u -d '8 hour' '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Set Output
-        id: output
-        run: echo "::set-output name=START_TIME::${{ env.START_TIME }}"
-
   metadata:
-    needs: set-time
     name: Metadata
     runs-on: ubuntu-22.04
     outputs:
@@ -314,7 +299,7 @@ jobs:
 
   release-packages:
     name: Release Packages - ${{ matrix.label }} - ${{ needs.metadata.outputs.release-desc }}
-    needs: [set-time, metadata, build-packages, verify-manifest-packages]
+    needs: [metadata, build-packages, verify-manifest-packages]
     runs-on: ubuntu-22.04
     if: fromJSON(needs.metadata.outputs.matrix)['release-packages'] != ''
     timeout-minutes: 5 # PULP takes a while to publish
@@ -354,4 +339,4 @@ jobs:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ github.ref_name }}
-        name: ${{ github.ref_name }}_${{ needs.set-time.outputs.start_time }}
+        name: ${{ github.ref_name }}
