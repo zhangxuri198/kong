@@ -6,6 +6,9 @@ name: Package & Release
 # Do not bump the version of actions/checkout to v4 before dropping rhel7 and amazonlinux2.
 
 on:  # yamllint disable-line rule:truthy
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
     inputs:
       official:
@@ -331,6 +334,13 @@ jobs:
         echo "arch=$arch"
         echo "arch=$arch" >> $GITHUB_OUTPUT
 
+    - name: Get Tag Name
+      id: get_tag
+      run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+    - name: Print Tag Name
+      run: echo "Building for tag ${{ env.TAG_NAME }}"
+
     - name: Release deb
       uses: softprops/action-gh-release@v2.0.8
       env:
@@ -338,5 +348,5 @@ jobs:
       with:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ github.ref_name }}
-        name: ${{ github.ref_name }}
+        tag_name: ${{ env.TAG_NAME }}
+        name: ${{ github.ref_name }}_${{ env.TAG_NAME }}
