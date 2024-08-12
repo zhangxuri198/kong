@@ -32,7 +32,7 @@ env:
   HAS_ACCESS_TO_GITHUB_TOKEN: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
 
 jobs:
-  get-time:
+  set-time:
     runs-on: ubuntu-22.04
     outputs:
       start_time: ${{ steps.set-time.outputs.START_TIME }}
@@ -47,7 +47,7 @@ jobs:
         run: echo "::set-output name=START_TIME::${{ env.START_TIME }}"
 
   metadata:
-    needs: get-time
+    needs: set-time
     name: Metadata
     runs-on: ubuntu-22.04
     outputs:
