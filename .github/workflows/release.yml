@@ -340,4 +340,4 @@ jobs:
         files: bazel-bin/pkg/${{ matrix.artifact }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: 3.7.1
-        name: ${{ github.ref_name }}_{{ github.GITHUB_WORKFLOW_SHA }}_{{ github.GITHUB_RUN_ATTEMPT }}
+        name: ${{ github.ref_name }}_${{ github.GITHUB_RUN_ATTEMPT }}
