@@ -145,6 +145,7 @@ build = {
     ["kong.cmd.vault"] = "kong/cmd/vault.lua",
     ["kong.cmd.version"] = "kong/cmd/version.lua",
     ["kong.cmd.hybrid"] = "kong/cmd/hybrid.lua",
+    ["kong.cmd.drain"] = "kong/cmd/drain.lua",
     ["kong.cmd.utils.log"] = "kong/cmd/utils/log.lua",
     ["kong.cmd.utils.kill"] = "kong/cmd/utils/kill.lua",
     ["kong.cmd.utils.env"] = "kong/cmd/utils/env.lua",
@@ -238,6 +239,7 @@ build = {
     ["kong.runloop.plugin_servers.rpc.mp_rpc"] = "kong/runloop/plugin_servers/rpc/mp_rpc.lua",
     ["kong.runloop.plugin_servers.rpc.pb_rpc"] = "kong/runloop/plugin_servers/rpc/pb_rpc.lua",
     ["kong.runloop.wasm"] = "kong/runloop/wasm.lua",
+    ["kong.runloop.wasm.plugins"] = "kong/runloop/wasm/plugins.lua",
     ["kong.runloop.wasm.properties"] = "kong/runloop/wasm/properties.lua",
 
     ["kong.workspaces"] = "kong/workspaces/init.lua",
@@ -284,6 +286,7 @@ build = {
     ["kong.db.schema.json"] = "kong/db/schema/json.lua",
     ["kong.db.schema.others.migrations"] = "kong/db/schema/others/migrations.lua",
     ["kong.db.schema.others.declarative_config"] = "kong/db/schema/others/declarative_config.lua",
+    ["kong.db.schema.others.wasm_filter"] = "kong/db/schema/others/wasm_filter.lua",
     ["kong.db.schema.entity"] = "kong/db/schema/entity.lua",
     ["kong.db.schema.metaschema"] = "kong/db/schema/metaschema.lua",
     ["kong.db.schema.typedefs"] = "kong/db/schema/typedefs.lua",
@@ -299,6 +302,7 @@ build = {
     ["kong.db.strategies.postgres.plugins"] = "kong/db/strategies/postgres/plugins.lua",
     ["kong.db.strategies.off"] = "kong/db/strategies/off/init.lua",
     ["kong.db.strategies.off.connector"] = "kong/db/strategies/off/connector.lua",
+    ["kong.db.strategies.off.tags"] = "kong/db/strategies/off/tags.lua",
 
     ["kong.db.migrations.state"] = "kong/db/migrations/state.lua",
     ["kong.db.migrations.subsystems"] = "kong/db/migrations/subsystems.lua",
@@ -543,6 +547,7 @@ build = {
     ["kong.plugins.prometheus.prometheus"] = "kong/plugins/prometheus/prometheus.lua",
     ["kong.plugins.prometheus.serve"] = "kong/plugins/prometheus/serve.lua",
     ["kong.plugins.prometheus.schema"] = "kong/plugins/prometheus/schema.lua",
+    ["kong.plugins.prometheus.wasmx"] = "kong/plugins/prometheus/wasmx.lua",
 
     ["kong.plugins.session.handler"] = "kong/plugins/session/handler.lua",
     ["kong.plugins.session.schema"] = "kong/plugins/session/schema.lua",
@@ -610,9 +615,11 @@ build = {
     ["kong.plugins.ai-proxy.migrations.001_360_to_370"] = "kong/plugins/ai-proxy/migrations/001_360_to_370.lua",
 
     ["kong.plugins.ai-request-transformer.handler"] = "kong/plugins/ai-request-transformer/handler.lua",
+    ["kong.plugins.ai-request-transformer.filters.transform-request"] = "kong/plugins/ai-request-transformer/filters/transform-request.lua",
     ["kong.plugins.ai-request-transformer.schema"] = "kong/plugins/ai-request-transformer/schema.lua",
 
     ["kong.plugins.ai-response-transformer.handler"] = "kong/plugins/ai-response-transformer/handler.lua",
+    ["kong.plugins.ai-response-transformer.filters.transform-response"] = "kong/plugins/ai-response-transformer/filters/transform-response.lua",
     ["kong.plugins.ai-response-transformer.schema"] = "kong/plugins/ai-response-transformer/schema.lua",
 
     ["kong.llm"] = "kong/llm/init.lua",
@@ -624,26 +631,43 @@ build = {
     ["kong.llm.drivers.anthropic"] = "kong/llm/drivers/anthropic.lua",
     ["kong.llm.drivers.mistral"] = "kong/llm/drivers/mistral.lua",
     ["kong.llm.drivers.llama2"] = "kong/llm/drivers/llama2.lua",
-    ["kong.llm.state"] = "kong/llm/state.lua",
-
     ["kong.llm.drivers.gemini"] = "kong/llm/drivers/gemini.lua",
     ["kong.llm.drivers.bedrock"] = "kong/llm/drivers/bedrock.lua",
+    ["kong.llm.drivers.huggingface"] = "kong/llm/drivers/huggingface.lua",
 
-    ["kong.llm.proxy.handler"] = "kong/llm/proxy/handler.lua",
 
-    ["kong.plugins.ai-prompt-decorator.handler"] = "kong/plugins/ai-prompt-decorator/handler.lua",
-    ["kong.plugins.ai-prompt-decorator.schema"]  = "kong/plugins/ai-prompt-decorator/schema.lua",
+    ["kong.llm.plugin.base"] = "kong/llm/plugin/base.lua",
+    ["kong.llm.plugin.ctx"] = "kong/llm/plugin/ctx.lua",
+    ["kong.llm.plugin.crud_handler"] = "kong/llm/plugin/crud_handler.lua",
+    ["kong.llm.plugin.observability"] = "kong/llm/plugin/observability.lua",
+    ["kong.llm.plugin.shared-filters.enable-buffering"] = "kong/llm/plugin/shared-filters/enable-buffering.lua",
+    ["kong.llm.plugin.shared-filters.normalize-json-response"] = "kong/llm/plugin/shared-filters/normalize-json-response.lua",
+    ["kong.llm.plugin.shared-filters.normalize-request"] = "kong/llm/plugin/shared-filters/normalize-request.lua",
+    ["kong.llm.plugin.shared-filters.normalize-sse-chunk"] = "kong/llm/plugin/shared-filters/normalize-sse-chunk.lua",
+    ["kong.llm.plugin.shared-filters.parse-json-response"] = "kong/llm/plugin/shared-filters/parse-json-response.lua",
+    ["kong.llm.plugin.shared-filters.parse-request"] = "kong/llm/plugin/shared-filters/parse-request.lua",
+    ["kong.llm.plugin.shared-filters.parse-sse-chunk"] = "kong/llm/plugin/shared-filters/parse-sse-chunk.lua",
+    ["kong.llm.plugin.shared-filters.serialize-analytics"] = "kong/llm/plugin/shared-filters/serialize-analytics.lua",
 
     ["kong.plugins.ai-prompt-template.handler"] = "kong/plugins/ai-prompt-template/handler.lua",
+    ["kong.plugins.ai-prompt-template.filters.render-prompt-template"] = "kong/plugins/ai-prompt-template/filters/render-prompt-template.lua",
     ["kong.plugins.ai-prompt-template.schema"]  = "kong/plugins/ai-prompt-template/schema.lua",
     ["kong.plugins.ai-prompt-template.templater"]  = "kong/plugins/ai-prompt-template/templater.lua",
 
+    ["kong.plugins.ai-prompt-decorator.handler"] = "kong/plugins/ai-prompt-decorator/handler.lua",
+    ["kong.plugins.ai-prompt-decorator.filters.decorate-prompt"] = "kong/plugins/ai-prompt-decorator/filters/decorate-prompt.lua",
+    ["kong.plugins.ai-prompt-decorator.schema"]  = "kong/plugins/ai-prompt-decorator/schema.lua",
+
+    ["kong.plugins.ai-prompt-guard.filters.guard-prompt"] = "kong/plugins/ai-prompt-guard/filters/guard-prompt.lua",
     ["kong.plugins.ai-prompt-guard.handler"] = "kong/plugins/ai-prompt-guard/handler.lua",
     ["kong.plugins.ai-prompt-guard.schema"]  = "kong/plugins/ai-prompt-guard/schema.lua",
 
     ["kong.plugins.standard-webhooks.handler"] = "kong/plugins/standard-webhooks/handler.lua",
     ["kong.plugins.standard-webhooks.internal"] = "kong/plugins/standard-webhooks/internal.lua",
     ["kong.plugins.standard-webhooks.schema"]  = "kong/plugins/standard-webhooks/schema.lua",
+
+    ["kong.plugins.redirect.handler"] = "kong/plugins/redirect/handler.lua",
+    ["kong.plugins.redirect.schema"]  = "kong/plugins/redirect/schema.lua",
 
     ["kong.vaults.env"] = "kong/vaults/env/init.lua",
     ["kong.vaults.env.schema"] = "kong/vaults/env/schema.lua",

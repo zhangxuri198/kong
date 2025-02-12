@@ -18,6 +18,7 @@ local CLUSTERING_SYNC_STATUS = constants.CLUSTERING_SYNC_STATUS
 local SYNC_MUTEX_OPTS = { name = "get_delta", timeout = 0, }
 
 
+local assert = assert
 local ipairs = ipairs
 local fmt = string.format
 local ngx_null = ngx.null
@@ -79,13 +80,14 @@ function _M:init_cp(manager)
 
     -- { default = { version = 1000, }, }
     local default_namespace_version = default_namespace.version
+    local node_info = assert(kong.rpc:get_peer_info(node_id))
 
-    -- XXX TODO: follow update_sync_status() in control_plane.lua
+    -- follow update_sync_status() in control_plane.lua
     local ok, err = kong.db.clustering_data_planes:upsert({ id = node_id }, {
       last_seen = ngx.time(),
       hostname = node_id,
-      ip = kong.rpc:get_peer_ip(node_id),   -- try to get the correct ip
-      version = "3.8.0.0",    -- XXX TODO: get from rpc call
+      ip = node_info.ip,   -- get the correct ip
+      version = node_info.version,    -- get from rpc call
       sync_status = CLUSTERING_SYNC_STATUS.NORMAL,
       config_hash = fmt("%032d", default_namespace_version),
       rpc_capabilities = rpc_peers and rpc_peers[node_id] or {},
@@ -181,13 +183,34 @@ function _M:init(manager, is_cp)
 end
 
 
+-- check if rpc connection is ready
+local function is_rpc_ready()
+  for i = 1, 5 do
+    local res = kong.rpc:get_peers()
+
+    -- control_plane is ready
+    if res["control_plane"] then
+      return true
+    end
+
+    -- retry later
+    ngx.sleep(0.1 * i)
+  end
+end
+
+
 local function do_sync()
-  local ns_deltas, err = kong.rpc:call("control_plane", "kong.sync.v2.get_delta",
-                                       { default =
-                                         { version =
-                                           tonumber(declarative.get_current_hash()) or 0,
-                                         },
-                                       })
+  if not is_rpc_ready() then
+    return nil, "rpc is not ready"
+  end
+
+  local msg = { default =
+                 { version =
+                   tonumber(declarative.get_current_hash()) or 0,
+                 },
+               }
+
+  local ns_deltas, err = kong.rpc:call("control_plane", "kong.sync.v2.get_delta", msg)
   if not ns_deltas then
     ngx_log(ngx_ERR, "sync get_delta error: ", err)
     return true
@@ -212,7 +235,9 @@ local function do_sync()
   -- and replace the old one with it
   local default_ws_changed
   for _, delta in ipairs(deltas) do
-    if delta.type == "workspaces" and delta.entity.name == "default" then
+    if delta.type == "workspaces" and delta.entity.name == "default" and
+      kong.default_workspace ~= delta.entity.id
+    then
       kong.default_workspace = delta.entity.id
       default_ws_changed = true
       break
@@ -392,8 +417,6 @@ end
 
 
 function _M:sync_once(delay)
-  --- XXX TODO: check rpc connection is ready
-
   return start_sync_timer(ngx.timer.at, delay or 0)
 end
 

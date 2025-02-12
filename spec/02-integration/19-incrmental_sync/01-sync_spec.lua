@@ -17,6 +17,7 @@ describe("Incremental Sync RPC #" .. strategy, function()
       database = strategy,
       cluster_listen = "127.0.0.1:9005",
       nginx_conf = "spec/fixtures/custom_nginx.template",
+      cluster_rpc = "on",
       cluster_incremental_sync = "on", -- incremental sync
     }))
 
@@ -30,7 +31,9 @@ describe("Incremental Sync RPC #" .. strategy, function()
       proxy_listen = "0.0.0.0:9002",
       nginx_conf = "spec/fixtures/custom_nginx.template",
       nginx_worker_processes = 4, -- multiple workers
+      cluster_rpc = "on",
       cluster_incremental_sync = "on", -- incremental sync
+      worker_state_update_frequency = 1,
     }))
   end)
 
@@ -86,6 +89,10 @@ describe("Incremental Sync RPC #" .. strategy, function()
       assert.logfile().has.no.line("unable to update clustering data plane status", true)
 
       assert.logfile("servroot2/logs/error.log").has.line("[kong.sync.v2] update entity", true)
+
+      -- dp lua-resty-events should work without privileged_agent
+      assert.logfile("servroot2/logs/error.log").has.line(
+        "lua-resty-events enable_privileged_agent is false", true)
     end)
 
     it("update route on CP", function()
