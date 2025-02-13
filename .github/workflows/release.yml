@@ -292,11 +292,11 @@ jobs:
         pip install -r requirements.txt
         pkg=$(ls ../../bazel-bin/pkg/kong* |head -n1)
         python ./main.py -f filelist.txt -p $pkg -o test.txt -s ${{ matrix.check-manifest-suite }}
+
   release-packages:
     name: Release Packages - ${{ matrix.label }} - ${{ needs.metadata.outputs.release-desc }}
     needs: [metadata, build-packages]
     runs-on: ubuntu-24.04
-    if: fromJSON(needs.metadata.outputs.matrix)['release-packages'] != ''
     timeout-minutes: 5 # PULP takes a while to publish
     environment: release
 
