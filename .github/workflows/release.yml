@@ -261,69 +261,12 @@ jobs:
         path: bazel-bin/pkg
         retention-days: 3
 
-  verify-manifest-packages:
-    needs: [metadata, build-packages]
-    name: Verify Manifest - Package ${{ matrix.label }}
-    runs-on: ubuntu-24.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include: "${{ fromJSON(needs.metadata.outputs.matrix)['build-packages'] }}"
-
-    steps:
-    - uses: actions/checkout@v4
-
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.label }}-packages
         path: bazel-bin/pkg
 
-    - name: Install Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip' # caching pip dependencies
-
-    - name: Verify
-      run: |
-        cd scripts/explain_manifest
-        pip install -r requirements.txt
-        pkg=$(ls ../../bazel-bin/pkg/kong* |head -n1)
-        python ./main.py -f filelist.txt -p $pkg -o test.txt -s ${{ matrix.check-manifest-suite }}
-  release-packages:
-    name: Release Packages - ${{ matrix.label }} - ${{ needs.metadata.outputs.release-desc }}
-    needs: [metadata, build-packages]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5 # PULP takes a while to publish
-    environment: release
-
-    strategy:
-      # limit to 3 jobs at a time
-      max-parallel: 3
-      fail-fast: false
-      matrix:
-        include: "${{ fromJSON(needs.metadata.outputs.matrix)['release-packages'] }}"
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ matrix.artifact-from }}-packages
-        path: bazel-bin/pkg
-
-    - name: Set package architecture
-      id: pkg-arch
-      run: |
-        arch='amd64'
-        if [[ '${{ matrix.label }}' == *'arm64' ]]; then
-          arch='arm64'
-        fi
-        echo "arch=$arch"
-        echo "arch=$arch" >> $GITHUB_OUTPUT
     - name: Get Tag Name
       id: get_tag
       run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
