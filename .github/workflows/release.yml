@@ -108,52 +108,12 @@ jobs:
       options: --privileged
 
     steps:
-    - name: Early Rpm Setup
-      if: matrix.package == 'rpm' && matrix.image != ''
-      run: |
-        # tar/gzip is needed to restore git cache (if available)
-        yum install -y tar gzip which file zlib-devel
-
     - name: Early Deb in Container Setup
       if: matrix.package == 'deb' && matrix.image != ''
       run: |
         # tar/gzip is needed to restore git cache (if available)
         apt-get update
         apt-get install -y git tar gzip file sudo
-
-    - name: Cache Git
-      id: cache-git
-      if: (matrix.package == 'rpm') && matrix.image != ''
-      uses: actions/cache@v4
-      with:
-        path: /usr/local/git
-        key: ${{ matrix.label }}-git-2.41.0
-
-    # el-7,8, amazonlinux-2,2023 doesn't have git 2.18+, so we need to install it manually
-    - name: Install newer Git
-      if: (matrix.package == 'rpm') && matrix.image != '' && steps.cache-git.outputs.cache-hit != 'true'
-      run: |
-        if which apt 2>/dev/null; then
-          apt update
-          apt install -y wget libz-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext make gcc autoconf sudo
-        else
-          yum update -y
-          yum groupinstall -y 'Development Tools'
-          yum install -y wget zlib-devel openssl-devel curl-devel expat-devel gettext-devel perl-CPAN perl-devel
-        fi
-        wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.41.0.tar.gz
-        tar xf git-2.41.0.tar.gz
-        cd git-2.41.0
-
-        make configure
-        ./configure --prefix=/usr/local/git
-        make -j$(nproc)
-        make install
-
-    - name: Add Git to PATH
-      if: (matrix.package == 'rpm') && matrix.image != ''
-      run: |
-        echo "/usr/local/git/bin" >> $GITHUB_PATH
 
     - name: Checkout Kong source code
       uses: actions/checkout@v4
@@ -209,18 +169,6 @@ jobs:
       run: |
         sudo apt-get install crossbuild-essential-arm64 -y
 
-    - name: Install Rpm Dependencies
-      if: matrix.package == 'rpm' && matrix.image != ''
-      run: |
-        yum groupinstall -y 'Development Tools'
-        dnf install -y 'dnf-command(config-manager)'
-        dnf config-manager --set-enabled powertools || true # enable devel packages on rockylinux:8
-        dnf config-manager --set-enabled crb || true # enable devel packages on rockylinux:9
-        yum install -y libyaml-devel
-        yum install -y cpanminus || (yum install -y perl && curl -L https://raw.githubusercontent.com/miyagawa/cpanminus/master/cpanm | perl - App::cpanminus) # amazonlinux2023 removed cpanminus
-        # required for openssl 3.x config
-        cpanm IPC/Cmd.pm
-
     - name: Build Kong dependencies
       if: steps.cache-deps.outputs.cache-hit != 'true'
       env:
@@ -233,39 +181,12 @@ jobs:
       run: |
         bazel build --config release :kong_${{ matrix.package }} --verbose_failures ${{ matrix.bazel-args }}
 
-    - name: Package Kong - rpm
-      if: matrix.package == 'rpm' && steps.cache-deps.outputs.cache-hit != 'true'
-      env:
-        RELEASE_SIGNING_GPG_KEY: ${{ secrets.RELEASE_SIGNING_GPG_KEY }}
-        NFPM_RPM_PASSPHRASE: ${{ secrets.RELEASE_SIGNING_GPG_KEY_PASSPHRASE }}
-      run: |
-        if [ -n "${RELEASE_SIGNING_GPG_KEY:-}" ]; then
-          RPM_SIGNING_KEY_FILE=$(mktemp)
-          echo "$RELEASE_SIGNING_GPG_KEY" > $RPM_SIGNING_KEY_FILE
-          export RPM_SIGNING_KEY_FILE=$RPM_SIGNING_KEY_FILE
-        fi
-
-        bazel build --config release :kong_${{ matrix.package-type }} --action_env=RPM_SIGNING_KEY_FILE --action_env=NFPM_RPM_PASSPHRASE ${{ matrix.bazel-args }}
-
     - name: Bazel Debug Outputs
       if: failure()
       run: |
         cat bazel-out/_tmp/actions/stderr-*
         sudo dmesg || true
         tail -n500 bazel-out/**/*/CMake.log || true
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.label }}-packages
-        path: bazel-bin/pkg
-        retention-days: 3
-
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ matrix.label }}-packages
-        path: bazel-bin/pkg
 
     - name: Get Tag Name
       id: get_tag
@@ -279,7 +200,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: bazel-bin/pkg/${{ matrix.artifact }}
+        files: bazel-bin/pkg/kong.amd64.deb
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ env.TAG_NAME }}
         name: ${{ github.ref_name }}_${{ env.TAG_NAME }}
